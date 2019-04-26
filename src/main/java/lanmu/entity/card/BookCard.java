@@ -1,62 +1,40 @@
-package lanmu.entity.db;
+package lanmu.entity.card;
+
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
+import lanmu.entity.db.Book;
 
-@Entity
-@Table(name = "tb_book")
-public class Book {
-
-    @Id
-    @PrimaryKeyJoinColumn
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(updatable = false, nullable = false, insertable = false)
+public class BookCard implements Serializable {
+    @Expose
     private long id;
-
-    @Column(nullable = false, length = 128)
+    @Expose
     private String name;
-
-    @Column(nullable = false, length = 128)
+    @Expose
     private String author;
-
-    @Column(nullable = false)
+    @Expose
     private String publisher;
-
-    @Column(nullable = false)
+    @Expose
     private LocalDateTime publishDate;
-
-    @Column(length = 128)
+    @Expose
     private String version;
-
-    @Column(length = 128)
+    @Expose
     private String languish;
-
-    @Column
+    @Expose
     private String coverUrl;
 
-    @Column
-    private String introduction;
-
-    public Book() {
-    }
-
-    public Book(String name, String author, String publisher, LocalDateTime publishDate, String version, String languish, String coverUrl, String introduction) {
-        this.name = name;
-        this.author = author;
-        this.publisher = publisher;
-        this.publishDate = publishDate;
-        this.version = version;
-        this.languish = languish;
-        this.coverUrl = coverUrl;
-        this.introduction = introduction;
+    public BookCard(Book book) {
+        this.id = book.getId();
+        this.name = book.getName();
+        this.author = book.getAuthor();
+        this.publisher = book.getPublisher();
+        this.publishDate = book.getPublishDate();
+        this.version = book.getVersion();
+        this.languish = book.getLanguish();
+        this.coverUrl = book.getCoverUrl();
+        this.introduction = book.getIntroduction();
     }
 
     public long getId() {
@@ -107,7 +85,6 @@ public class Book {
         this.version = version;
     }
 
-
     public String getLanguish() {
         return languish;
     }
@@ -115,7 +92,6 @@ public class Book {
     public void setLanguish(String languish) {
         this.languish = languish;
     }
-
 
     public String getCoverUrl() {
         return coverUrl;
@@ -125,7 +101,6 @@ public class Book {
         this.coverUrl = coverUrl;
     }
 
-
     public String getIntroduction() {
         return introduction;
     }
@@ -134,4 +109,16 @@ public class Book {
         this.introduction = introduction;
     }
 
+    @Expose
+    private String introduction;
+
+    public boolean check() {
+        return name != null && name.length() > 0 &&
+                author != null && author.length() > 0 &&
+                publisher != null && publisher.length() > 0 &&
+                publishDate != null &&
+                version != null && version.length() > 0 &&
+                languish != null && languish.length() > 0 &&
+                coverUrl != null && coverUrl.length() > 0;
+    }
 }

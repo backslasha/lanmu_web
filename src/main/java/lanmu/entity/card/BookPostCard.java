@@ -1,22 +1,34 @@
 package lanmu.entity.card;
 
+import com.google.gson.annotations.Expose;
+
 import java.time.LocalDateTime;
 
-import lanmu.entity.db.Book;
+import lanmu.entity.db.BookPost;
 import lanmu.entity.db.User;
 
 public class BookPostCard {
-    private Book book;
+
+    @Expose
+    private BookCard book;
+    @Expose
     private User creator;
+    @Expose
     private LocalDateTime createDate;
+    @Expose
     private String content;
+    @Expose
     private String images;
 
-    public Book getBook() {
-        return book;
+    public BookPostCard(BookPost bookPost) {
+        this.book = new BookCard(bookPost.getBook());
+        this.creator = bookPost.getCreator();
+        this.createDate = bookPost.getCreateDate();
+        this.content = bookPost.getContent();
+        this.images = bookPost.getImages();
     }
 
-    public BookPostCard(Book book, User creator, LocalDateTime createDate, String content, String images) {
+    public BookPostCard(BookCard book, User creator, LocalDateTime createDate, String content, String images) {
         this.book = book;
         this.creator = creator;
         this.createDate = createDate;
@@ -24,7 +36,11 @@ public class BookPostCard {
         this.images = images;
     }
 
-    public void setBook(Book book) {
+    public BookCard getBook() {
+        return book;
+    }
+
+    public void setBook(BookCard book) {
         this.book = book;
     }
 

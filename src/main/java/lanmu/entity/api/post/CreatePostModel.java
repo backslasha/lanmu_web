@@ -1,18 +1,29 @@
 package lanmu.entity.api.post;
 
-import lanmu.entity.db.Book;
+import com.google.common.base.Strings;
+import com.google.gson.annotations.Expose;
 
-public class BookPostModel {
-    private Book book;
+import lanmu.entity.card.BookCard;
+
+/**
+ * 创建书帖时需要的信息
+ */
+public class CreatePostModel {
+
+    @Expose
+    private BookCard book;
+    @Expose
     private long createId;
+    @Expose
     private String content;
+    @Expose
     private String images;
 
-    public Book getBook() {
+    public BookCard getBook() {
         return book;
     }
 
-    public void setBook(Book book) {
+    public void setBook(BookCard book) {
         this.book = book;
     }
 
@@ -40,10 +51,15 @@ public class BookPostModel {
         this.images = images;
     }
 
-    public BookPostModel(Book book, long createId, String content, String images) {
+    public CreatePostModel(BookCard book, long createId, String content, String images) {
         this.book = book;
         this.createId = createId;
         this.content = content;
         this.images = images;
+    }
+
+    public static boolean check(CreatePostModel createPostModel) {
+        return createPostModel != null && createPostModel.book.check()
+                && !Strings.isNullOrEmpty(createPostModel.content);
     }
 }

@@ -8,7 +8,6 @@ import java.util.Base64;
 import lanmu.provider.GsonProvider;
 
 /**
- * @author qiujuer Email:qiujuer@live.cn
  * @version 1.0.0
  */
 public class TextUtil {

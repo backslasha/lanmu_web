@@ -1,20 +1,11 @@
 package lanmu.factory;
 
-import com.google.common.base.Strings;
-
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import lanmu.entity.db.User;
 import lanmu.utils.Hib;
 import lanmu.utils.TextUtil;
 
-/**
- * @author qiujuer Email:qiujuer@live.cn
- * @version 1.0.0
- */
 public class UserFactory {
     // 通过Token字段查询用户信息
     // 只能自己使用，查询的信息是个人信息，非他人信息

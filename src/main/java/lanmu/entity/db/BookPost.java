@@ -1,6 +1,8 @@
 package lanmu.entity.db;
 
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,18 +16,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import javax.ws.rs.ext.ParamConverter;
 
 @Entity
 @Table(name = "tb_book_post")
 public class BookPost {
 
-    public BookPost(Book book, long creatorId, String content, String images) {
+    public BookPost(Book book, User creator, String content, String images) {
         this.book = book;
-        this.creatorId = creatorId;
+        this.creator = creator;
         this.content = content;
         this.images = images;
     }
-
 
     @Id
     @PrimaryKeyJoinColumn
@@ -35,6 +37,7 @@ public class BookPost {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "bookId")
+    @Cascade(CascadeType.ALL)
     private Book book;
 
     @Column(updatable = false, insertable = false, nullable = false)
@@ -54,7 +57,7 @@ public class BookPost {
     @Column
     private String content;
 
-    @Column
+    @Column(length = 2550)
     private String images;
 
     public BookPost() {

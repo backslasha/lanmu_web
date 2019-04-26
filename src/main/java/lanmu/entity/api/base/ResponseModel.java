@@ -5,10 +5,9 @@ import com.google.gson.annotations.Expose;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * @author qiujuer Email:qiujuer@live.cn
- * @version 1.0.0
- */
+import lanmu.entity.card.BookPostCard;
+import lanmu.entity.db.BookPost;
+
 public class ResponseModel<M> implements Serializable {
     // 成功
     public static final int SUCCEED = 1;
@@ -22,8 +21,8 @@ public class ResponseModel<M> implements Serializable {
     // 没有找到群成员信息
     public static final int ERROR_NOT_FOUND_GROUP_MEMBER = 4043;
 
-    // 创建用户失败
-    public static final int ERROR_CREATE_USER = 3001;
+    // 创建书帖
+    public static final int ERROR_CREATE_POST = 3001;
     // 创建群失败
     public static final int ERROR_CREATE_GROUP = 3002;
     // 创建群成员失败
@@ -161,6 +160,10 @@ public class ResponseModel<M> implements Serializable {
 
     public static <M> ResponseModel<M> buildCreateError(int type) {
         return new ResponseModel<M>(type, "Create failed.");
+    }
+
+    public static <M> ResponseModel<M> buildCreateError(int type, M result) {
+        return new ResponseModel<M>(type, "Create failed, the unique target already exits.", result);
     }
 
 }

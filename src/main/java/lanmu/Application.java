@@ -6,13 +6,12 @@ import java.util.logging.Logger;
 
 import lanmu.provider.AuthRequestFilter;
 import lanmu.provider.GsonProvider;
-import lanmu.service.AccountService;
+import lanmu.service.BaseService;
 
 public class Application extends ResourceConfig {
     public Application() {
         // 注册逻辑处理的包名
-        //packages("net.qiujuer.web.italker.push.service");
-        packages(AccountService.class.getPackage().getName());
+        packages(BaseService.class.getPackage().getName());
 
         // 注册我们的全局请求拦截器
         register(AuthRequestFilter.class);
