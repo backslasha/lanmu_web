@@ -1,15 +1,21 @@
 package lanmu.service;
 
-import java.io.Serializable;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import lanmu.entity.api.base.ResponseModel;
-import lanmu.entity.api.post.BookPostRspModel;
 import lanmu.entity.api.post.CreatePostModel;
+import lanmu.entity.api.post.SearchPostModel;
 import lanmu.entity.card.BookCard;
 import lanmu.entity.card.BookPostCard;
 import lanmu.entity.db.Book;
@@ -74,6 +80,81 @@ public class BookPostService extends BaseService {
         });
     }
 
+
+    @Path("/search")
+    @GET
+    @Produces("application/json")
+    public ResponseModel<List<BookPostCard>> search(@QueryParam("type") int type,
+                                                    @QueryParam("value") String value) {
+        if (Strings.isNullOrEmpty(value)) {
+            return ResponseModel.buildParameterError();
+        }
+        try {
+            switch (type) {
+                case SearchPostModel.TYPE_KEYWORD:
+                    return queryBookPostsByKeyWord(value);
+                case SearchPostModel.TYPE_CREATOR_ID:
+                    return queryBookPostsByCreatorId(Long.parseLong(value));
+                case SearchPostModel.TYPE_POST_ID:
+                    return queryBookPostsByPostId(Long.parseLong(value));
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return ResponseModel.buildParameterError();
+    }
+
+    private ResponseModel<List<BookPostCard>> queryBookPostsByPostId(long postId) {
+        return Hib.query(session -> {
+            List<BookPost> bookPosts
+                    = session.createQuery("from BookPost where id=:postId",
+                    BookPost.class)
+                    .setParameter("postId", postId)
+                    .getResultList();
+            // todo for every book post, query a comment count
+            return ResponseModel.buildOk(
+                    bookPosts.stream()
+                            .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                            .collect(Collectors.toList())
+            );
+        });
+    }
+
+    private ResponseModel<List<BookPostCard>> queryBookPostsByCreatorId(long creatorId) {
+        return Hib.query(session -> {
+            List<BookPost> bookPosts
+                    = session.createQuery("from BookPost where creatorId=:creatorId",
+                    BookPost.class)
+                    .setParameter("creatorId", creatorId)
+                    .getResultList();
+            return ResponseModel.buildOk(
+                    bookPosts.stream()
+                            .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                            .collect(Collectors.toList())
+            );
+        });
+    }
+
+    private ResponseModel<List<BookPostCard>> queryBookPostsByKeyWord(String keyword) {
+        return Hib.query(session -> {
+            List<BookPost> bookPosts
+                    = session.createQuery("from BookPost where bookId in " +
+                            "(select book.id from Book as book where book.name like :value)",
+                    BookPost.class)
+                    .setParameter("value", "%" + keyword + "%")
+                    .getResultList();
+            return ResponseModel.buildOk(
+                    bookPosts.stream()
+                            .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                            .collect(Collectors.toList())
+            );
+        });
+    }
+
+
+    /**
+     * 从数据库中查找是否存在 和 该 model 对应的 BookPost，存在则返回这个 BookPost
+     */
     private BookPost search(CreatePostModel model) {
         return Hib.query(session -> {
             BookCard book = model.getBook();

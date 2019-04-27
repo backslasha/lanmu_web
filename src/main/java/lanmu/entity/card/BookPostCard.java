@@ -19,6 +19,10 @@ public class BookPostCard {
     private String content;
     @Expose
     private String images;
+    @Expose
+    private long id;
+    @Expose
+    private int commentCount = 999;
 
     public BookPostCard(BookPost bookPost) {
         this.book = new BookCard(bookPost.getBook());
@@ -26,6 +30,7 @@ public class BookPostCard {
         this.createDate = bookPost.getCreateDate();
         this.content = bookPost.getContent();
         this.images = bookPost.getImages();
+        this.id = bookPost.getId();
     }
 
     public BookPostCard(BookCard book, User creator, LocalDateTime createDate, String content, String images) {
@@ -34,6 +39,22 @@ public class BookPostCard {
         this.createDate = createDate;
         this.content = content;
         this.images = images;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public BookCard getBook() {

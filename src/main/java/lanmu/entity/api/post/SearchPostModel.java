@@ -2,41 +2,55 @@ package lanmu.entity.api.post;
 
 import com.google.gson.annotations.Expose;
 
-import javax.print.DocFlavor;
-
-import lanmu.entity.db.Book;
-
 /**
  * 搜索书帖时需要的信息
  */
 public class SearchPostModel {
 
+    public static final int TYPE_KEYWORD = 0;
+    public static final int TYPE_POST_ID = 1;
+    public static final int TYPE_CREATOR_ID = 2;
+
     @Expose
-    private String keyword;
+    private String value;
     @Expose
-    private long postId;
+    private int type;
 
-    public SearchPostModel(long postId) {
-        this.postId = postId;
+    public SearchPostModel(String value, int type) {
+        this.value = value;
+        this.type = type;
     }
 
-    public SearchPostModel(String keyword) {
-        this.keyword = keyword;
+    public SearchPostModel() {
+
     }
 
-    public long getPostId() {
-        return postId;
+    public static int getTypeKeyword() {
+        return TYPE_KEYWORD;
     }
 
-    public void setPostId(long postId) {
-        this.postId = postId;
+    public static int getTypePostId() {
+        return TYPE_POST_ID;
     }
 
-    public String getKeyword() {
-        return keyword;
+    public static int getTypeCreatorId() {
+        return TYPE_CREATOR_ID;
     }
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
