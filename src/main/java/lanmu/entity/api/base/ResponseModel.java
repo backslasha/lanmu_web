@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lanmu.entity.card.BookPostCard;
+import lanmu.entity.card.UserCard;
 import lanmu.entity.db.BookPost;
 
 public class ResponseModel<M> implements Serializable {
@@ -27,6 +28,8 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_CREATE_GROUP = 3002;
     // 创建群成员失败
     public static final int ERROR_CREATE_MESSAGE = 3003;
+
+    public static final int ERROR_UPDATE_USER_INFO= 3004;
 
     // 请求参数错误
     public static final int ERROR_PARAMETERS = 4001;
@@ -77,41 +80,6 @@ public class ResponseModel<M> implements Serializable {
         this.result = result;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public boolean isSucceed() {
-        return code == SUCCEED;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public LocalDateTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
-
-    public M getResult() {
-        return result;
-    }
-
-    public void setResult(M result) {
-        this.result = result;
-    }
 
     public static <M> ResponseModel<M> buildOk() {
         return new ResponseModel<M>();
@@ -141,7 +109,6 @@ public class ResponseModel<M> implements Serializable {
         return new ResponseModel<M>(ERROR_NOT_FOUND_USER, str != null ? str : "Not Found User.");
     }
 
-
     public static <M> ResponseModel<M> buildAccountError() {
         return new ResponseModel<M>(ERROR_ACCOUNT_TOKEN, "Account Error; you need login.");
     }
@@ -158,12 +125,52 @@ public class ResponseModel<M> implements Serializable {
         return new ResponseModel<M>(ERROR_ACCOUNT_NO_PERMISSION, "You do not have permission to operate.");
     }
 
+    public static <M> ResponseModel<M> buildUpdateError(int type) {
+        return new ResponseModel<M>(type, "Update failed.");
+    }
+
     public static <M> ResponseModel<M> buildCreateError(int type) {
         return new ResponseModel<M>(type, "Create failed.");
     }
 
     public static <M> ResponseModel<M> buildCreateError(int type, M result) {
         return new ResponseModel<M>(type, "Create failed, the unique target already exits.", result);
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public boolean isSucceed() {
+        return code == SUCCEED;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
+
+    public M getResult() {
+        return result;
+    }
+
+    public void setResult(M result) {
+        this.result = result;
     }
 
 }

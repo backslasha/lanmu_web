@@ -34,7 +34,7 @@ public class UserFactory {
     }
 
     // 通过Name找到User
-    public static User findById(String id) {
+    public static User findById(long id) {
         // 通过Id查询，更方便
         return Hib.query(session -> session.get(User.class, id));
     }
