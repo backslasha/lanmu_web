@@ -112,7 +112,7 @@ public class Hib {
         // 开启事物
         final Transaction transaction = session.beginTransaction();
 
-        T t = null;
+        T t;
         try {
             // 调用传递进来的接口，
             // 并调用接口的方法把Session传递进去
@@ -127,6 +127,7 @@ public class Hib {
             } catch (RuntimeException e1) {
                 e1.printStackTrace();
             }
+            t = null;
         } finally {
             // 无论成功失败，都需要关闭Session
             session.close();

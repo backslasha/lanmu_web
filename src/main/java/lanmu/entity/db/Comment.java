@@ -5,13 +5,16 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+import javax.naming.ldap.PagedResultsControl;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -28,26 +31,23 @@ public class Comment {
     @Column(updatable = false, insertable = false, nullable = false)
     private long postId;
 
-    @ManyToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "postId")
+    private BookPost bookPost;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "fromId")
     private User from;
 
     @Column(updatable = false, insertable = false, nullable = false)
     private long fromId;
 
-    @ManyToOne
-    @JoinColumn(name = "toId")
-    private User to;
-
-    @Column(updatable = false, insertable = false, nullable = false)
-    private long toId;
-
     @Column
     private String content;
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime time;
+    private LocalDateTime time = LocalDateTime.now();
 
     public long getId() {
         return id;
@@ -75,16 +75,6 @@ public class Comment {
         this.fromId = fromId;
     }
 
-
-    public long getToId() {
-        return toId;
-    }
-
-    public void setToId(long toId) {
-        this.toId = toId;
-    }
-
-
     public String getContent() {
         return content;
     }
@@ -101,14 +91,6 @@ public class Comment {
         this.from = from;
     }
 
-    public User getTo() {
-        return to;
-    }
-
-    public void setTo(User to) {
-        this.to = to;
-    }
-
     public LocalDateTime getTime() {
         return time;
     }
@@ -118,4 +100,11 @@ public class Comment {
     }
 
 
+    public BookPost getBookPost() {
+        return bookPost;
+    }
+
+    public void setBookPost(BookPost bookPost) {
+        this.bookPost = bookPost;
+    }
 }

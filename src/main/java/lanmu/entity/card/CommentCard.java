@@ -6,6 +6,8 @@ import com.google.gson.annotations.Expose;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import lanmu.entity.db.Comment;
+
 
 public class CommentCard {
     @Expose
@@ -21,16 +23,19 @@ public class CommentCard {
     private long fromId;
 
     @Expose
-    private UserCard to;
-
-    @Expose
-    private long toId;
-
-    @Expose
     private String content;
 
     @Expose
     private LocalDateTime time;
+
+    public CommentCard(Comment comment) {
+        this.id = comment.getId();
+        this.postId = comment.getPostId();
+        this.from = new UserCard(comment.getFrom());
+        this.fromId = comment.getFromId();
+        this.content = comment.getContent();
+        this.time = comment.getTime();
+    }
 
     public long getId() {
         return id;
@@ -58,16 +63,6 @@ public class CommentCard {
         this.fromId = fromId;
     }
 
-
-    public long getToId() {
-        return toId;
-    }
-
-    public void setToId(long toId) {
-        this.toId = toId;
-    }
-
-
     public String getContent() {
         return content;
     }
@@ -82,14 +77,6 @@ public class CommentCard {
 
     public void setFrom(UserCard from) {
         this.from = from;
-    }
-
-    public UserCard getTo() {
-        return to;
-    }
-
-    public void setTo(UserCard to) {
-        this.to = to;
     }
 
     public LocalDateTime getTime() {

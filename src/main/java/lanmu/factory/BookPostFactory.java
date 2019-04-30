@@ -49,7 +49,7 @@ public class BookPostFactory {
                     .setParameter("postId", postId)
                     .getResultList();
             // todo for every book post, query a comment count
-           return bookPosts.stream()
+            return bookPosts.stream()
                     .map((Function<BookPost, BookPostCard>) BookPostCard::new)
                     .collect(Collectors.toList());
         });
@@ -63,8 +63,8 @@ public class BookPostFactory {
                     .setParameter("creatorId", creatorId)
                     .getResultList();
             return bookPosts.stream()
-                            .map((Function<BookPost, BookPostCard>) BookPostCard::new)
-                            .collect(Collectors.toList());
+                    .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                    .collect(Collectors.toList());
         });
     }
 
@@ -82,4 +82,13 @@ public class BookPostFactory {
         });
     }
 
+    public static BookPost findById(long postId) {
+        return Hib.query(
+                session -> session.createQuery(
+                        "from BookPost where id=:postId",
+                        BookPost.class)
+                        .setParameter("postId", postId)
+                        .uniqueResult()
+        );
+    }
 }
