@@ -5,40 +5,37 @@ import com.google.gson.annotations.Expose;
 import java.time.LocalDateTime;
 
 import lanmu.entity.db.BookPost;
-import lanmu.entity.db.User;
 
 public class BookPostCard {
 
     @Expose
     private BookCard book;
+
     @Expose
-    private User creator;
+    private UserCard creator;
+
     @Expose
     private LocalDateTime createDate;
+
     @Expose
     private String content;
+
     @Expose
     private String images;
+
     @Expose
     private long id;
+
     @Expose
     private int commentCount = 999;
 
     public BookPostCard(BookPost bookPost) {
         this.book = new BookCard(bookPost.getBook());
-        this.creator = bookPost.getCreator();
+        this.creator = new UserCard(bookPost.getCreator());
         this.createDate = bookPost.getCreateDate();
         this.content = bookPost.getContent();
         this.images = bookPost.getImages();
         this.id = bookPost.getId();
-    }
-
-    public BookPostCard(BookCard book, User creator, LocalDateTime createDate, String content, String images) {
-        this.book = book;
-        this.creator = creator;
-        this.createDate = createDate;
-        this.content = content;
-        this.images = images;
     }
 
     public int getCommentCount() {
@@ -89,13 +86,11 @@ public class BookPostCard {
         this.images = images;
     }
 
-    public User getCreator() {
+    public UserCard getCreator() {
         return creator;
     }
 
-    public void setCreator(User creator) {
+    public void setCreator(UserCard creator) {
         this.creator = creator;
     }
-
-
 }
