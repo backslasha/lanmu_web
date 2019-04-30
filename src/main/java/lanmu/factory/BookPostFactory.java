@@ -83,12 +83,6 @@ public class BookPostFactory {
     }
 
     public static BookPost findById(long postId) {
-        return Hib.query(
-                session -> session.createQuery(
-                        "from BookPost where id=:postId",
-                        BookPost.class)
-                        .setParameter("postId", postId)
-                        .uniqueResult()
-        );
+        return Hib.query(session -> session.find(BookPost.class, postId));
     }
 }

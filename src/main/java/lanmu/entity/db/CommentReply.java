@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,38 +22,37 @@ public class CommentReply {
 
     @Id
     @PrimaryKeyJoinColumn
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false, insertable = false, nullable = false)
     private long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fromId")
     private User from;
 
     @Column(updatable = false, insertable = false, nullable = false)
     private long fromId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "commentId")
     private Comment comment;
 
     @Column(updatable = false, insertable = false, nullable = false)
     private long commentId;
 
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toId")
     private User to;
 
-    @Column(updatable = false, insertable = false, nullable = false)
-    private long toId;
+    @Column(updatable = false, insertable = false)
+    private Long toId;
 
     @Column
     private String content;
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime time;
+    private LocalDateTime time = LocalDateTime.now();
 
 
     public long getId() {
@@ -62,7 +62,6 @@ public class CommentReply {
     public void setId(long id) {
         this.id = id;
     }
-
 
     public long getFromId() {
         return fromId;
@@ -81,15 +80,13 @@ public class CommentReply {
         this.commentId = commentId;
     }
 
-
-    public long getToId() {
-        return toId;
-    }
-
-    public void setToId(long toId) {
+    public void setToId(Long toId) {
         this.toId = toId;
     }
 
+    public Long getToId() {
+        return toId;
+    }
 
     public String getContent() {
         return content;

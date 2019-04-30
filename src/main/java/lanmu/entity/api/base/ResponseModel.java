@@ -19,15 +19,15 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_NOT_FOUND_USER = 4041;
     // 没有找到帖子
     public static final int ERROR_NOT_FOUND_POST = 4042;
-    // 没有找到群成员信息
-    public static final int ERROR_NOT_FOUND_GROUP_MEMBER = 4043;
+    // 没有评论
+    public static final int ERROR_NOT_FOUND_COMMENT = 4043;
 
     // 创建书帖
     public static final int ERROR_CREATE_POST = 3001;
     // 创建评论失败
     public static final int ERROR_CREATE_COMMENT = 3002;
-    // 创建群成员失败
-    public static final int ERROR_CREATE_MESSAGE = 3003;
+    // 创建回复失败
+    public static final int ERROR_CREATE_REPLY = 3003;
 
     public static final int ERROR_UPDATE_USER_INFO= 3004;
 
@@ -110,7 +110,10 @@ public class ResponseModel<M> implements Serializable {
     }
 
     public static <M> ResponseModel<M> buildNotFoundPostError() {
-        return new ResponseModel<M>(ERROR_NOT_FOUND_POST, "Not Found User.");
+        return new ResponseModel<M>(ERROR_NOT_FOUND_POST, "Not Found Post.");
+    }
+    public static <M> ResponseModel<M> buildNotFoundCommentError() {
+        return new ResponseModel<M>(ERROR_NOT_FOUND_COMMENT, "Not Found Comment.");
     }
 
     public static <M> ResponseModel<M> buildAccountError() {
