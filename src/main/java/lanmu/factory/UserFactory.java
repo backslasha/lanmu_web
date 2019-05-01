@@ -39,6 +39,13 @@ public class UserFactory {
         return Hib.query(session -> session.get(User.class, id));
     }
 
+    public static boolean exists(long id) {
+        return Hib.query(session ->
+                session.createQuery("select 1 from User u where u.id=:id")
+                        .setParameter("id", id)
+                        .uniqueResult() != null);
+    }
+
     /**
      * 更新用户信息到数据库
      *

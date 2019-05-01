@@ -21,6 +21,8 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_NOT_FOUND_POST = 4042;
     // 没有评论
     public static final int ERROR_NOT_FOUND_COMMENT = 4043;
+    // 没有聊天记录
+    public static final int ERROR_NOT_FOUND_MESSAGE = 4044;
 
     // 创建书帖
     public static final int ERROR_CREATE_POST = 3001;
@@ -28,8 +30,10 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_CREATE_COMMENT = 3002;
     // 创建回复失败
     public static final int ERROR_CREATE_REPLY = 3003;
+    // 创建消息失败
+    public static final int ERROR_CREATE_MESSAGE = 3004;
 
-    public static final int ERROR_UPDATE_USER_INFO= 3004;
+    public static final int ERROR_UPDATE_USER_INFO= 3005;
 
     // 请求参数错误
     public static final int ERROR_PARAMETERS = 4001;
@@ -114,6 +118,10 @@ public class ResponseModel<M> implements Serializable {
     }
     public static <M> ResponseModel<M> buildNotFoundCommentError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_COMMENT, "Not Found Comment.");
+    }
+
+    public static <M> ResponseModel<M> buildNotFoundMessageError() {
+        return new ResponseModel<M>(ERROR_NOT_FOUND_MESSAGE, "Not Found Messages.");
     }
 
     public static <M> ResponseModel<M> buildAccountError() {

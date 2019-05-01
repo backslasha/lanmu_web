@@ -26,7 +26,7 @@ public class CommentReply {
     @Column(updatable = false, insertable = false, nullable = false)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fromId")
     private User from;
 
@@ -40,7 +40,7 @@ public class CommentReply {
     @Column(updatable = false, insertable = false, nullable = false)
     private long commentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "toId")
     private User to;
 

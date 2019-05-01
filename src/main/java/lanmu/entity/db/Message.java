@@ -24,7 +24,6 @@ public class Message {
     @Column(updatable = false, nullable = false, insertable = false)
     private long id;
 
-
     @ManyToOne
     @JoinColumn(name = "fromId")
     private User from;
@@ -44,10 +43,24 @@ public class Message {
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime time;
+    private LocalDateTime time = LocalDateTime.now();
 
     @Column(nullable = false)
-    private long type;
+    private int type;
+    @Column(nullable = false)
+    private int received = 0;
+
+    public int getType() {
+        return type;
+    }
+
+    public int getReceived() {
+        return received;
+    }
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
 
     public User getFrom() {
         return from;
@@ -81,6 +94,10 @@ public class Message {
         this.fromId = fromId;
     }
 
+    public void setType(int type) {
+        this.type = type;
+    }
+
     public long getToId() {
         return toId;
     }
@@ -103,15 +120,6 @@ public class Message {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
-    }
-
-
-    public long getType() {
-        return type;
-    }
-
-    public void setType(long type) {
-        this.type = type;
     }
 
 }
