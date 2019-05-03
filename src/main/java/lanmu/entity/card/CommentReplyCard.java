@@ -1,6 +1,7 @@
 package lanmu.entity.card;
 
 import com.google.gson.annotations.Expose;
+import com.sun.istack.internal.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.List;

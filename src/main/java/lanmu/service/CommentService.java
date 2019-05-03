@@ -1,5 +1,6 @@
 package lanmu.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,8 +14,10 @@ import javax.ws.rs.Produces;
 import lanmu.entity.api.base.ResponseModel;
 import lanmu.entity.api.comment.CreateCommentModel;
 import lanmu.entity.api.comment.CreateReplyModel;
+import lanmu.entity.api.comment.NotifyRspModel;
 import lanmu.entity.card.CommentCard;
 import lanmu.entity.card.CommentReplyCard;
+import lanmu.entity.card.NotifyCard;
 import lanmu.entity.db.BookPost;
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
@@ -81,6 +84,39 @@ public class CommentService {
                             .map(CommentCard::new)
                             .collect(Collectors.toList()));
         }
+    }
+
+
+    @GET
+    @Path("resemble/{userId}/")
+    @Produces("application/json")
+    public ResponseModel<NotifyRspModel> pullNotifies(@PathParam("userId") long userId) {
+        User user = UserFactory.findById(userId);
+        if (user == null) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        List<Comment> comments
+                = CommentFactory.queryUserReceivedComments(userId);
+        List<CommentReply> replies
+                = CommentFactory.queryUserReceivedReplies(userId);
+
+        if (replies == null || comments == null) {
+            return ResponseModel.buildNotFoundCommentError();
+        }
+
+        int unread = CommentFactory.updateCommentsReceived(userId);
+        unread += CommentFactory.updateRepliesReceived(userId);
+
+        List<NotifyCard> notifyCards = comments.stream()
+                .map(NotifyCard::new)
+                .collect(Collectors.toList());
+        notifyCards.addAll(replies.stream()
+                .map(NotifyCard::new)
+                .collect(Collectors.toList())
+        );
+        notifyCards.sort(Comparator.comparing(NotifyCard::getTime));
+
+        return ResponseModel.buildOk(new NotifyRspModel(unread, notifyCards));
     }
 
 

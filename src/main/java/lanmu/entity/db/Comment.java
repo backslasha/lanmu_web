@@ -54,6 +54,17 @@ public class Comment {
     @JoinColumn(name = "commentId")
     private List<CommentReply> replies;
 
+    @Column(nullable = false)
+    private int received = 0;
+
+    public int getReceived() {
+        return received;
+    }
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
+
     public List<CommentReply> getReplies() {
         return replies;
     }

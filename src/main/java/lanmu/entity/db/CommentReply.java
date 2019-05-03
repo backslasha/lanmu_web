@@ -54,6 +54,16 @@ public class CommentReply {
     @Column(nullable = false)
     private LocalDateTime time = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private int received;
+
+    public int getReceived() {
+        return received;
+    }
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
 
     public long getId() {
         return id;
