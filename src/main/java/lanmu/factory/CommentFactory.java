@@ -31,16 +31,6 @@ public class CommentFactory {
         });
     }
 
-    public static int updateCommentsReceived(long userId) {
-        return Hib.query(session ->
-                session.createQuery("update Comment set received=1 " +
-                        "where postId in (from BookPost where creatorId = :userId) " +
-                        "and fromId!=:userId and received=0")
-                        .setParameter("userId", userId)
-                        .executeUpdate()
-        );
-    }
-
     public static List<Comment> queryUserReceivedComments(long userId) {
         return Hib.query(session -> {
             List<Comment> comments = session.createQuery("from Comment where postId" +
@@ -79,6 +69,16 @@ public class CommentFactory {
                         "commentId in (from Comment where fromId = :userId)" +
                         " and" +
                         " fromId!= :userId and received=0")
+                        .setParameter("userId", userId)
+                        .executeUpdate()
+        );
+    }
+
+    public static int updateCommentsReceived(long userId) {
+        return Hib.query(session ->
+                session.createQuery("update Comment set received=1 " +
+                        "where postId in (from BookPost where creatorId = :userId) " +
+                        "and fromId!=:userId and received=0")
                         .setParameter("userId", userId)
                         .executeUpdate()
         );

@@ -1,8 +1,10 @@
 package lanmu.factory;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lanmu.entity.db.Comment;
+import lanmu.entity.db.CommentReply;
 import lanmu.entity.db.ThumbsUp;
 import lanmu.entity.db.User;
 import lanmu.utils.Hib;
@@ -29,7 +31,6 @@ public class ThumbsUpFactory {
         );
     }
 
-
     public static int countThumbsUp(long commentId) {
         AtomicReference<Long> count = new AtomicReference<>();
         Hib.queryOnly(session -> count.set(
@@ -53,4 +54,34 @@ public class ThumbsUpFactory {
                         .uniqueResult());
     }
 
+
+    public static List<ThumbsUp> queryUserReceivedThumbsUp(long userId) {
+        return Hib.query(session -> {
+            List<ThumbsUp> thumbsUps = session.createQuery(
+                    "from ThumbsUp " +
+                    "where " +
+                    "commentId in (from Comment where fromId = :userId) " +
+                    "and fromId!= :userId", ThumbsUp.class)
+                    .setParameter("userId", userId)
+                    .setMaxResults(20)
+                    .getResultList();
+            for (ThumbsUp thumbsUp : thumbsUps) {
+                thumbsUp.getComment().getBookPost().getBook();
+            }
+            return thumbsUps;
+        });
+    }
+
+
+    public static int updateThumbsUpsReceived(long userId) {
+        return Hib.query(session ->
+                session.createQuery("update ThumbsUp set received=1 " +
+                        "where " +
+                        "commentId in (from Comment where fromId = :userId)" +
+                        " and" +
+                        " fromId!= :userId and received=0")
+                        .setParameter("userId", userId)
+                        .executeUpdate()
+        );
+    }
 }

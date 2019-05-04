@@ -1,5 +1,9 @@
 package lanmu.entity.db;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+
 import javax.naming.Name;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,6 +38,18 @@ public class ThumbsUp {
 
     @Column(updatable = false, insertable = false, nullable = false)
     private long commentId;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private LocalDateTime time = LocalDateTime.now();
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
 
     public long getId() {
         return id;

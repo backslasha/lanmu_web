@@ -8,11 +8,13 @@ import java.util.Date;
 import lanmu.entity.db.BookPost;
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
+import lanmu.entity.db.ThumbsUp;
 
 public class NotifyCard {
 
     public static final int TYPE_NEW_COMMENT = 1;
     public static final int TYPE_NEW_REPLY = 2;
+    public static final int TYPE_NEW_THUMBS_UP = 3;
 
     @Expose
     private int type;
@@ -35,6 +37,21 @@ public class NotifyCard {
     private String cover;
     @Expose
     private BookCard book;
+
+    public NotifyCard(ThumbsUp thumbsUp) {
+        this.type = TYPE_NEW_THUMBS_UP;
+        Comment comment = thumbsUp.getComment();
+        this.postId = comment.getPostId();
+        this.id = thumbsUp.getId();
+        this.from = new UserCard(thumbsUp.getFrom());
+        this.content1 = "点赞了你的评论";
+        BookPost bookPost = comment.getBookPost();
+        String[] split = bookPost.getImages().split(";");
+        this.content2 = comment.getContent();
+        this.cover = split.length > 0 ? split[0] : "";
+        this.time = thumbsUp.getTime();
+        this.book = new BookCard(bookPost.getBook());
+    }
 
     public String getContent1() {
         return content1;
@@ -73,7 +90,7 @@ public class NotifyCard {
         this.from = new UserCard(reply.getFrom());
         this.content1 = reply.getContent();
         BookPost bookPost = reply.getComment().getBookPost();
-        this.content2 = bookPost.getContent();
+        this.content2 = reply.getComment().getContent();
         String[] split = bookPost.getImages().split(";");
         this.cover = split.length > 0 ? split[0] : "";
         this.time = reply.getTime();

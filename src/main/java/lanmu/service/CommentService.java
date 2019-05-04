@@ -106,13 +106,16 @@ public class CommentService extends BaseService {
                 = CommentFactory.queryUserReceivedComments(userId);
         List<CommentReply> replies
                 = CommentFactory.queryUserReceivedReplies(userId);
+        List<ThumbsUp> thumbsUps
+                = ThumbsUpFactory.queryUserReceivedThumbsUp(userId);
 
-        if (replies == null || comments == null) {
+        if (thumbsUps == null || replies == null || comments == null) {
             return ResponseModel.buildNotFoundCommentError();
         }
 
         int unread = CommentFactory.updateCommentsReceived(userId);
         unread += CommentFactory.updateRepliesReceived(userId);
+        unread += ThumbsUpFactory.updateThumbsUpsReceived(userId);
 
         List<NotifyCard> notifyCards = comments.stream()
                 .map(NotifyCard::new)
@@ -121,7 +124,11 @@ public class CommentService extends BaseService {
                 .map(NotifyCard::new)
                 .collect(Collectors.toList())
         );
-        notifyCards.sort(Comparator.comparing(NotifyCard::getTime));
+        notifyCards.addAll(thumbsUps.stream()
+                .map(NotifyCard::new)
+                .collect(Collectors.toList())
+        );
+        notifyCards.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime()));
 
         return ResponseModel.buildOk(new NotifyRspModel(unread, notifyCards));
     }
