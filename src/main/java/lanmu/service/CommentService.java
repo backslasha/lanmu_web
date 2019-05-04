@@ -10,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import lanmu.entity.api.base.ResponseModel;
 import lanmu.entity.api.comment.CreateCommentModel;
@@ -21,14 +22,16 @@ import lanmu.entity.card.NotifyCard;
 import lanmu.entity.db.BookPost;
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
+import lanmu.entity.db.ThumbsUp;
 import lanmu.entity.db.User;
 import lanmu.factory.BookPostFactory;
 import lanmu.factory.CommentFactory;
+import lanmu.factory.ThumbsUpFactory;
 import lanmu.factory.UserFactory;
 import lanmu.utils.Hib;
 
 @Path("comment/")
-public class CommentService {
+public class CommentService extends BaseService {
 
     @POST
     @Path("create/")
@@ -79,10 +82,14 @@ public class CommentService {
         if (comments == null) {
             return ResponseModel.buildNotFoundCommentError();
         } else {
-            return ResponseModel.buildOk(
-                    comments.stream()
-                            .map(CommentCard::new)
-                            .collect(Collectors.toList()));
+            List<CommentCard> cards = comments.stream()
+                    .map(CommentCard::new)
+                    .peek(card -> {
+                        card.setThumbsUpCount(ThumbsUpFactory.countThumbsUp(card.getId()));
+                        card.setThumbsUp(null != ThumbsUpFactory.find(getSelf().getId(), card.getId()));
+                    })
+                    .collect(Collectors.toList());
+            return ResponseModel.buildOk(cards);
         }
     }
 
@@ -154,6 +161,43 @@ public class CommentService {
             return ResponseModel.buildOk(new CommentReplyCard(committed));
         }
         return ResponseModel.buildCreateError(ResponseModel.ERROR_CREATE_REPLY);
+    }
+
+    @GET
+    @Path("thumbsup/")
+    @Produces("application/json")
+    public ResponseModel createThumbsUp(@QueryParam("commentId") long commentId,
+                                        @QueryParam("fromId") long fromId) {
+
+        if (fromId != getSelf().getId()) {
+            return ResponseModel.buildNoPermissionError();
+        }
+
+        Comment comment = CommentFactory.findById(commentId);
+        if (comment == null) {
+            return ResponseModel.buildNotFoundCommentError();
+        }
+
+        User from = UserFactory.findById(fromId);
+        if (from == null) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+
+        ThumbsUp thumbsUp = ThumbsUpFactory.find(fromId, commentId);
+        if (thumbsUp == null) {
+            thumbsUp = ThumbsUpFactory.createThumbsUp(comment, from);
+            if (thumbsUp != null) {
+                return ResponseModel.buildOk();
+            } else {
+                return ResponseModel.buildCreateError(ResponseModel.ERROR_CREATE_THUMBS_UP);
+            }
+        } else {
+            thumbsUp = ThumbsUpFactory.deleteThumbsUp(thumbsUp);
+            if (thumbsUp != null) {
+                return ResponseModel.buildOk();
+            }
+            return ResponseModel.buildDeleteError(ResponseModel.ERROR_DELETE_THUMBS_UP);
+        }
     }
 
 }

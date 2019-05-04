@@ -69,7 +69,6 @@ public class Star {
         this.id = id;
     }
 
-
     public long getFromId() {
         return fromId;
     }

@@ -32,8 +32,14 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_CREATE_REPLY = 3003;
     // 创建消息失败
     public static final int ERROR_CREATE_MESSAGE = 3004;
+    // 创建点赞失败
+    public static final int ERROR_CREATE_THUMBS_UP = 3005;
 
-    public static final int ERROR_UPDATE_USER_INFO= 3005;
+    // 删除点赞失败
+    public static final int ERROR_DELETE_THUMBS_UP = 3099;
+
+
+    public static final int ERROR_UPDATE_USER_INFO = 3006;
 
     // 请求参数错误
     public static final int ERROR_PARAMETERS = 4001;
@@ -116,6 +122,7 @@ public class ResponseModel<M> implements Serializable {
     public static <M> ResponseModel<M> buildNotFoundPostError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_POST, "Not Found Post.");
     }
+
     public static <M> ResponseModel<M> buildNotFoundCommentError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_COMMENT, "Not Found Comment.");
     }
@@ -150,6 +157,10 @@ public class ResponseModel<M> implements Serializable {
 
     public static <M> ResponseModel<M> buildCreateError(int type, M result) {
         return new ResponseModel<M>(type, "Create failed, the unique target already exits.", result);
+    }
+
+    public static <M> ResponseModel<M> buildDeleteError(int type) {
+        return new ResponseModel<M>(type, "Delete failed.");
     }
 
     public int getCode() {

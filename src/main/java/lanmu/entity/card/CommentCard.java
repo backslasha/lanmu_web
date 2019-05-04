@@ -30,26 +30,21 @@ public class CommentCard {
 
     @Expose
     private LocalDateTime time;
+    @Expose
+    private int thumbsUpCount;
+    @Expose
+    private boolean thumbsUp;
 
-    public List<CommentReplyCard> getReplies() {
-        return replies;
+    public boolean getThumbsUp() {
+        return thumbsUp;
     }
 
-    public void setReplies(List<CommentReplyCard> replies) {
-        this.replies = replies;
-    }
-
-    public int getReplyCount() {
-        return replyCount;
-    }
-
-    public void setReplyCount(int replyCount) {
-        this.replyCount = replyCount;
+    public void setThumbsUp(boolean thumbsUp) {
+        this.thumbsUp = thumbsUp;
     }
 
     @Expose
     private List<CommentReplyCard> replies;
-
     @Expose
     private int replyCount;
 
@@ -68,6 +63,30 @@ public class CommentCard {
         }
         this.replies = replyCards;
         this.replyCount = replies.size();
+    }
+
+    public int getThumbsUpCount() {
+        return thumbsUpCount;
+    }
+
+    public void setThumbsUpCount(int thumbsUpCount) {
+        this.thumbsUpCount = thumbsUpCount;
+    }
+
+    public List<CommentReplyCard> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<CommentReplyCard> replies) {
+        this.replies = replies;
+    }
+
+    public int getReplyCount() {
+        return replyCount;
+    }
+
+    public void setReplyCount(int replyCount) {
+        this.replyCount = replyCount;
     }
 
     public long getId() {

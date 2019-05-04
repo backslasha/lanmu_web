@@ -1,11 +1,15 @@
 package lanmu.factory;
 
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
+import lanmu.entity.db.ThumbsUp;
+import lanmu.entity.db.User;
 import lanmu.utils.Hib;
 
 public class CommentFactory {
@@ -15,10 +19,16 @@ public class CommentFactory {
     }
 
     public static List<Comment> queryPostComments(long postId) {
-        return Hib.query(session ->
-                session.createQuery("from Comment where postId=:postId", Comment.class)
-                        .setParameter("postId", postId)
-                        .getResultList());
+        return Hib.query(session -> {
+            List<Comment> comments
+                    = session.createQuery("from Comment where postId=:postId", Comment.class)
+                    .setParameter("postId", postId)
+                    .getResultList();
+            for (Comment comment : comments) {
+                Hibernate.initialize(comment.getReplies());
+            }
+            return comments;
+        });
     }
 
     public static int updateCommentsReceived(long userId) {

@@ -50,7 +50,7 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime time = LocalDateTime.now();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     @JoinColumn(name = "commentId")
     private List<CommentReply> replies;
 

@@ -60,6 +60,7 @@
         <mapping package="lanmu.entity.db" class="lanmu.entity.db.CommentReply" />
         <mapping package="lanmu.entity.db" class="lanmu.entity.db.Message" />
         <mapping package="lanmu.entity.db" class="lanmu.entity.db.Star" />
+        <mapping package="lanmu.entity.db" class="lanmu.entity.db.ThumbsUp" />
         <!--<mapping package="lanmu.entity.db" class="lanmu.entity.db.A" />-->
         <!--<mapping package="lanmu.entity.db" class="lanmu.entity.db.B" />-->
 
