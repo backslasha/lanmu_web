@@ -160,4 +160,15 @@ public class AccountService extends BaseService {
         return ResponseModel.buildOk(dynamics);
     }
 
+    @GET
+    @Path("/{userId}/profile")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<UserCard> searchUserInfo(@PathParam("userId") long userId) {
+        User userInDb = UserFactory.findById(userId);
+        if (userInDb == null) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        return ResponseModel.buildOk(new UserCard(userInDb));
+    }
+
 }
