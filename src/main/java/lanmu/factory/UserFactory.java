@@ -1,8 +1,11 @@
 package lanmu.factory;
 
+import java.util.List;
 import java.util.UUID;
 
+import lanmu.entity.db.Apply;
 import lanmu.entity.db.User;
+import lanmu.entity.db.UserFollow;
 import lanmu.utils.Hib;
 import lanmu.utils.TextUtil;
 
@@ -161,6 +164,49 @@ public class UserFactory {
         password = TextUtil.getMD5(password);
         // 再进行一次对称的Base64加密，当然可以采取加盐的方案
         return TextUtil.encodeBase64(password);
+    }
+
+    public static List<User> contacts(long userId) {
+        return Hib.query(session -> session.createQuery("from User where id in " +
+                "(select toId from UserFollow where fromId=:userId)", User.class)
+                .setParameter("userId", userId)
+                .getResultList());
+    }
+
+    public static UserFollow addFriend(User from, User to) {
+        return Hib.query(session -> {
+            UserFollow userFollow = new UserFollow();
+            userFollow.setFrom(from);
+            userFollow.setTo(to);
+            UserFollow userFollow2 = new UserFollow();
+            userFollow2.setFrom(to);
+            userFollow2.setTo(from);
+            session.saveOrUpdate(userFollow);
+            session.saveOrUpdate(userFollow2);
+            return userFollow;
+        });
+    }
+
+    public static boolean isFriend(long fromId, long toId) {
+        UserFollow query = Hib.query(session ->
+                session.createQuery("from UserFollow " +
+                        "where fromId=:fromId and toId=:toId", UserFollow.class)
+                        .setParameter("fromId", fromId)
+                        .setParameter("toId", toId)
+                        .uniqueResult());
+        return query != null;
+    }
+
+    public static Apply createApply(User from, User to) {
+        return Hib.query(session -> {
+                    Apply apply = new Apply();
+                    apply.setFrom(from);
+                    apply.setTo(to);
+                    apply.setHandle(0);
+                    session.saveOrUpdate(apply);
+                    return apply;
+                }
+        );
     }
 
 

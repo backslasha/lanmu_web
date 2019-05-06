@@ -143,10 +143,10 @@ public class CommentService extends BaseService {
             return ResponseModel.buildParameterError();
         }
         User from = UserFactory.findById(model.getFromId());
-        if (from == null) {
+        User to = UserFactory.findById(model.getToId());
+        if (from == null || to == null) {
             return ResponseModel.buildNotFoundUserError(null);
         }
-        User to = UserFactory.findById(model.getToId());
         Comment comment = CommentFactory.findById(model.getCommentId());
         if (comment == null) {
             return ResponseModel.buildNotFoundCommentError();

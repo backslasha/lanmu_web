@@ -18,13 +18,10 @@ public class NotifyCard {
 
     @Expose
     private int type;
-
     @Expose
     private long postId;
-
     @Expose
     private long id;
-
     @Expose
     private UserCard from;
     @Expose
@@ -37,6 +34,8 @@ public class NotifyCard {
     private String cover;
     @Expose
     private BookCard book;
+    @Expose
+    private boolean received;
 
     public NotifyCard(ThumbsUp thumbsUp) {
         this.type = TYPE_NEW_THUMBS_UP;
@@ -51,6 +50,45 @@ public class NotifyCard {
         this.cover = split.length > 0 ? split[0] : "";
         this.time = thumbsUp.getTime();
         this.book = new BookCard(bookPost.getBook());
+        this.received = thumbsUp.getReceived() != 0;
+    }
+
+    public NotifyCard(Comment comment) {
+        this.type = TYPE_NEW_COMMENT;
+        this.postId = comment.getPostId();
+        this.id = comment.getId();
+        this.from = new UserCard(comment.getFrom());
+        this.content1 = comment.getContent();
+        BookPost bookPost = comment.getBookPost();
+        String[] split = bookPost.getImages().split(";");
+        this.content2 = bookPost.getContent();
+        this.cover = split.length > 0 ? split[0] : "";
+        this.time = comment.getTime();
+        this.book = new BookCard(bookPost.getBook());
+        this.received = comment.getReceived() != 0;
+    }
+
+    public NotifyCard(CommentReply reply) {
+        this.type = TYPE_NEW_REPLY;
+        this.postId = reply.getComment().getPostId();
+        this.id = reply.getId();
+        this.from = new UserCard(reply.getFrom());
+        this.content1 = reply.getContent();
+        BookPost bookPost = reply.getComment().getBookPost();
+        this.content2 = reply.getComment().getContent();
+        String[] split = bookPost.getImages().split(";");
+        this.cover = split.length > 0 ? split[0] : "";
+        this.time = reply.getTime();
+        this.book = new BookCard(bookPost.getBook());
+        this.received = reply.getReceived() != 0;
+    }
+
+    public boolean isReceived() {
+        return received;
+    }
+
+    public void setReceived(boolean received) {
+        this.received = received;
     }
 
     public String getContent1() {
@@ -67,34 +105,6 @@ public class NotifyCard {
 
     public void setContent2(String content2) {
         this.content2 = content2;
-    }
-
-    public NotifyCard(Comment comment) {
-        this.type = TYPE_NEW_COMMENT;
-        this.postId = comment.getPostId();
-        this.id = comment.getId();
-        this.from = new UserCard(comment.getFrom());
-        this.content1 = comment.getContent();
-        BookPost bookPost = comment.getBookPost();
-        String[] split = bookPost.getImages().split(";");
-        this.content2 = bookPost.getContent();
-        this.cover = split.length > 0 ? split[0] : "";
-        this.time = comment.getTime();
-        this.book = new BookCard(bookPost.getBook());
-    }
-
-    public NotifyCard(CommentReply reply) {
-        this.type = TYPE_NEW_REPLY;
-        this.postId = reply.getComment().getPostId();
-        this.id = reply.getId();
-        this.from = new UserCard(reply.getFrom());
-        this.content1 = reply.getContent();
-        BookPost bookPost = reply.getComment().getBookPost();
-        this.content2 = reply.getComment().getContent();
-        String[] split = bookPost.getImages().split(";");
-        this.cover = split.length > 0 ? split[0] : "";
-        this.time = reply.getTime();
-        this.book = new BookCard(bookPost.getBook());
     }
 
     public int getType() {

@@ -18,6 +18,8 @@ public class UserCard {
     private String gender;
     @Expose
     private String phone;
+    @Expose
+    private boolean isFriend;
 
     public UserCard(User user) {
         this.id = user.getId();
@@ -26,6 +28,19 @@ public class UserCard {
         this.phone = user.getPhone();
         this.introduction = user.getIntroduction();
         this.gender = user.getGender();
+    }
+
+    public UserCard(User user, boolean isFriend) {
+        this(user);
+        this.isFriend = isFriend;
+    }
+
+    public boolean isFriend() {
+        return isFriend;
+    }
+
+    public void setFriend(boolean friend) {
+        isFriend = friend;
     }
 
     public String getGender() {

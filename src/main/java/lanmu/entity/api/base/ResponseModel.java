@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lanmu.entity.card.BookPostCard;
 import lanmu.entity.card.UserCard;
@@ -23,6 +24,10 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_NOT_FOUND_COMMENT = 4043;
     // 没有聊天记录
     public static final int ERROR_NOT_FOUND_MESSAGE = 4044;
+    // 没有联系人
+    public static final int ERROR_NOT_FOUND_CONTRACT = 4045;
+    // 没有好友申请
+    public static final int ERROR_NOT_FOUND_APPLY = 4046;
 
     // 创建书帖
     public static final int ERROR_CREATE_POST = 3001;
@@ -34,12 +39,17 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_CREATE_MESSAGE = 3004;
     // 创建点赞失败
     public static final int ERROR_CREATE_THUMBS_UP = 3005;
+    // 创建关注失败
+    public static final int ERROR_CREATE_FOLLOW = 3006;
+    // 创建好友请求失败
+    public static final int ERROR_CREATE_APPLY = 3007;
 
     // 删除点赞失败
     public static final int ERROR_DELETE_THUMBS_UP = 3099;
 
 
-    public static final int ERROR_UPDATE_USER_INFO = 3006;
+    public static final int ERROR_UPDATE_USER_INFO = 3087;
+    public static final int ERROR_UPDATE_APPLY = 3086;
 
     // 请求参数错误
     public static final int ERROR_PARAMETERS = 4001;
@@ -129,6 +139,14 @@ public class ResponseModel<M> implements Serializable {
 
     public static <M> ResponseModel<M> buildNotFoundMessageError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_MESSAGE, "Not Found Messages.");
+    }
+
+    public static <M>ResponseModel<M> buildNotFoundContactError() {
+        return new ResponseModel<M>(ERROR_NOT_FOUND_CONTRACT, "Not Found Contract");
+    }
+
+    public static <M>ResponseModel<M> buildNotFoundApplyError() {
+        return new ResponseModel<M>(ERROR_NOT_FOUND_APPLY, "Not Found Apply");
     }
 
     public static <M> ResponseModel<M> buildAccountError() {
