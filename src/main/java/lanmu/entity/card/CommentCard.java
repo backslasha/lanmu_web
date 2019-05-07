@@ -13,6 +13,11 @@ import lanmu.entity.db.CommentReply;
 
 
 public class CommentCard {
+
+    public static final int ORDER_TIME_CLOSEST_FIRST = 0;
+    public static final int ORDER_TIME_REMOTEST_FIRST = 1;
+    public static final int ORDER_COMMENT_THUMBS_UP_FIRST = 2;
+    public static final int ORDER_DEFAULT = ORDER_TIME_CLOSEST_FIRST;
     @Expose
     private long id;
 

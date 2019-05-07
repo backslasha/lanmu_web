@@ -1,33 +1,87 @@
 package lanmu.factory;
 
 import org.hibernate.Hibernate;
+import org.hibernate.query.Query;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
+import lanmu.entity.card.CommentCard;
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
 import lanmu.utils.Hib;
 
+import static lanmu.entity.card.CommentCard.ORDER_COMMENT_THUMBS_UP_FIRST;
+
 public class CommentFactory {
+
+    private static final String HQL_COMMENTS_TIME_ORDER =
+            "select cm," +
+                    "(select count (tp.commentId) from ThumbsUp tp where tp.commentId=cm.id) as cnt, " +
+                    "(select distinct (1) from ThumbsUp tp where tp.commentId=cm.id and fromId=:fromId) " +
+                    "from Comment cm " +
+                    "where cm.postId=:postId " +
+                    "order by cm.time ";
+
+    private static final String HQL_COMMENTS_TIME_ORDER_DESC =
+            HQL_COMMENTS_TIME_ORDER + "desc ";
+
+    private static final String HQL_COMMENTS_TB_ORDER =
+            "select cm," +
+                    "(select COUNT(tp.commentId) from ThumbsUp tp where tp.commentId=cm.id) as cnt, " +
+                    "(select distinct (1) from ThumbsUp tp where tp.commentId=cm.id and fromId=:fromId) " +
+                    "from Comment cm " +
+                    "where cm.postId=:postId " +
+                    "order by cnt desc ";
 
     public static Comment findById(long id) {
         return Hib.query(session -> session.get(Comment.class, id));
     }
 
-    public static List<Comment> queryPostComments(long postId) {
+    /**
+     * 返回评论列表
+     */
+    public static List<CommentCard> queryPostComments(long postId, long userId, int order) {
         return Hib.query(session -> {
-            List<Comment> comments
-                    = session.createQuery("from Comment where postId=:postId", Comment.class)
-                    .setParameter("postId", postId)
-                    .getResultList();
-            for (Comment comment : comments) {
-                Hibernate.initialize(comment.getReplies());
+            String hql;
+            switch (order) {
+                case CommentCard.ORDER_DEFAULT:
+                    hql = HQL_COMMENTS_TIME_ORDER_DESC;
+                    break;
+                case CommentCard.ORDER_TIME_REMOTEST_FIRST:
+                    hql = HQL_COMMENTS_TIME_ORDER;
+                    break;
+                case ORDER_COMMENT_THUMBS_UP_FIRST:
+                    hql = HQL_COMMENTS_TB_ORDER;
+                    break;
+                default:
+                    hql = HQL_COMMENTS_TIME_ORDER_DESC;
             }
-            return comments;
+            Query<Object[]> query = session.createQuery(hql, Object[].class);
+            List<Object[]> objects = query
+                    .setParameter("postId", postId)
+                    .setParameter("fromId", userId)
+                    .getResultList();
+            return objects2Cards(objects);
         });
+    }
+
+
+    private static List<CommentCard> objects2Cards(List<Object[]> objects) {
+        return objects.stream()
+                .map(object -> {
+                    Comment comment = (Comment) object[0];
+                    int cnt = Math.toIntExact((long) object[1]);
+                    Hibernate.initialize(comment.getReplies());
+                    CommentCard card = new CommentCard(comment);
+                    card.setThumbsUpCount(cnt);
+                    card.setThumbsUp(object[2] != null);
+                    return card;
+                })
+                .collect(Collectors.toList());
     }
 
     public static int queryPostCommentCount(long postId) {

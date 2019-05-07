@@ -1,6 +1,5 @@
 package lanmu.service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,22 +72,17 @@ public class CommentService extends BaseService {
     @GET
     @Path("{postId}/")
     @Produces("application/json")
-    public ResponseModel<List<CommentCard>> pullComments(@PathParam("postId") long postId) {
+    public ResponseModel<List<CommentCard>> pullComments(@PathParam("postId") long postId,
+                                                         @QueryParam("order") int order
+    ) {
         BookPost bookPost = BookPostFactory.findById(postId);
         if (bookPost == null) {
             return ResponseModel.buildNotFoundPostError();
         }
-        List<Comment> comments = CommentFactory.queryPostComments(postId);
-        if (comments == null) {
+        List<CommentCard> cards = CommentFactory.queryPostComments(postId, getSelf().getId(), order);
+        if (cards == null) {
             return ResponseModel.buildNotFoundCommentError();
         } else {
-            List<CommentCard> cards = comments.stream()
-                    .map(CommentCard::new)
-                    .peek(card -> {
-                        card.setThumbsUpCount(ThumbsUpFactory.countThumbsUp(card.getId()));
-                        card.setThumbsUp(null != ThumbsUpFactory.find(getSelf().getId(), card.getId()));
-                    })
-                    .collect(Collectors.toList());
             return ResponseModel.buildOk(cards);
         }
     }
