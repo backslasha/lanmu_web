@@ -2,7 +2,10 @@ package lanmu.factory;
 
 import com.google.common.base.Function;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import lanmu.entity.api.post.CreatePostModel;
@@ -48,11 +51,13 @@ public class BookPostFactory {
                     BookPost.class)
                     .setParameter("postId", postId)
                     .getResultList();
-            // todo for every book post, query a comment count
             return bookPosts.stream()
                     .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                    .peek(card ->
+                            card.setCommentCount(CommentFactory.queryPostCommentCount(card.getId())))
                     .collect(Collectors.toList());
         });
+
     }
 
     public static List<BookPostCard> queryBookPostsByCreatorId(long creatorId) {
@@ -64,7 +69,22 @@ public class BookPostFactory {
                     .getResultList();
             return bookPosts.stream()
                     .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                    .peek(card ->
+                            card.setCommentCount(CommentFactory.queryPostCommentCount(card.getId())))
                     .collect(Collectors.toList());
+        });
+    }
+
+    public static List<BookPost> queryUserPostsByMonth(long creatorId, int delta) {
+        return Hib.query(session -> {
+            LocalDateTime toDate = LocalDateTime.now().minus(30 * delta, ChronoUnit.DAYS);
+            LocalDateTime fromDate = toDate.minus(30, ChronoUnit.DAYS);
+            return session.createQuery("from BookPost where creatorId=:creatorId" +
+                    " and createDate > :date1 and createDate < :date2", BookPost.class)
+                    .setParameter("creatorId", creatorId)
+                    .setParameter("date1", fromDate)
+                    .setParameter("date2", toDate)
+                    .getResultList();
         });
     }
 
@@ -78,6 +98,8 @@ public class BookPostFactory {
                     .getResultList();
             return bookPosts.stream()
                     .map((Function<BookPost, BookPostCard>) BookPostCard::new)
+                    .peek(card ->
+                            card.setCommentCount(CommentFactory.queryPostCommentCount(card.getId())))
                     .collect(Collectors.toList());
         });
     }

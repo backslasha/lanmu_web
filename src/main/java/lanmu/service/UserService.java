@@ -1,6 +1,8 @@
 package lanmu.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,11 +17,19 @@ import javax.ws.rs.core.MediaType;
 
 import lanmu.entity.api.base.ResponseModel;
 import lanmu.entity.card.ApplyCard;
+import lanmu.entity.card.DynamicCard;
 import lanmu.entity.card.UserCard;
 import lanmu.entity.db.Apply;
+import lanmu.entity.db.BookPost;
+import lanmu.entity.db.Comment;
+import lanmu.entity.db.CommentReply;
+import lanmu.entity.db.ThumbsUp;
 import lanmu.entity.db.User;
 import lanmu.entity.db.UserFollow;
 import lanmu.factory.ApplyFactory;
+import lanmu.factory.BookPostFactory;
+import lanmu.factory.CommentFactory;
+import lanmu.factory.ThumbsUpFactory;
 import lanmu.factory.UserFactory;
 import lanmu.utils.Hib;
 
@@ -138,5 +148,86 @@ public class UserService extends BaseService {
         }
         return ResponseModel.buildUpdateError(ResponseModel.ERROR_UPDATE_APPLY);
     }
+
+
+    @GET
+    @Path("/dynamic/posts/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<DynamicCard>> pullPostsDynamics(@PathParam("userId") long userId) {
+        if (null == UserFactory.findById(userId)) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        // 创建过的帖子
+        List<DynamicCard> dynamics = new ArrayList<>();
+        List<BookPost> bookPosts = BookPostFactory.queryUserPostsByMonth(userId, 0);
+        for (BookPost card : bookPosts) {
+            dynamics.add(new DynamicCard(card));
+        }
+        dynamics.sort(tComparator);
+        return ResponseModel.buildOk(dynamics);
+    }
+
+    @GET
+    @Path("/dynamic/comments/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<DynamicCard>> pullCommentsDynamics(@PathParam("userId") long userId) {
+        if (null == UserFactory.findById(userId)) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        // 创建过的帖子
+        List<DynamicCard> dynamics = new ArrayList<>();
+        // 回复帖子
+        List<Comment> comments = CommentFactory.queryUserCommentsByMonth(userId, 0);
+        for (Comment card : comments) {
+            dynamics.add(new DynamicCard(card));
+        }
+        dynamics.sort(tComparator);
+        return ResponseModel.buildOk(dynamics);
+
+    }
+
+    @GET
+    @Path("/dynamic/replies/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<DynamicCard>> pullRepliesDynamics(@PathParam("userId") long userId) {
+        if (null == UserFactory.findById(userId)) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        // 创建过的帖子
+        List<DynamicCard> dynamics = new ArrayList<>();
+        // 回复评论（回复评论+回复评论下他人的评论）
+        List<CommentReply> replies = CommentFactory.queryUserRepliesByMonth(userId, 0);
+        for (CommentReply card : replies) {
+            dynamics.add(new DynamicCard(card));
+        }
+        dynamics.sort(tComparator);
+        return ResponseModel.buildOk(dynamics);
+    }
+
+    @GET
+    @Path("/dynamic/thumbsup/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<DynamicCard>> pullThumbsUpDynamics(@PathParam("userId") long userId) {
+        if (null == UserFactory.findById(userId)) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        // 创建过的帖子
+        List<DynamicCard> dynamics = new ArrayList<>();
+        // 点赞
+        List<ThumbsUp> thumbsUps = ThumbsUpFactory.queryUserThumbsUpByMonth(userId, 0);
+        for (ThumbsUp thumbsUp : thumbsUps) {
+            dynamics.add(new DynamicCard(thumbsUp));
+        }
+        dynamics.sort(tComparator);
+        return ResponseModel.buildOk(dynamics);
+    }
+
+    private Comparator<DynamicCard> tComparator = (o1, o2) -> {
+        if (o1.getTime().isBefore(o2.getTime()))
+            return 1;
+        if (o1.getTime().isAfter(o2.getTime()))
+            return -1;
+        return 0;
+    };
 
 }

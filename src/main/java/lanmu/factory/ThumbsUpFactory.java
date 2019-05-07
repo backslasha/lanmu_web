@@ -1,10 +1,11 @@
 package lanmu.factory;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lanmu.entity.db.Comment;
-import lanmu.entity.db.CommentReply;
 import lanmu.entity.db.ThumbsUp;
 import lanmu.entity.db.User;
 import lanmu.utils.Hib;
@@ -83,5 +84,20 @@ public class ThumbsUpFactory {
                         .setParameter("userId", userId)
                         .executeUpdate()
         );
+    }
+
+    public static List<ThumbsUp> queryUserThumbsUpByMonth(long userId, int delta) {
+            return Hib.query(session -> {
+                LocalDateTime toDate = LocalDateTime.now().minus(30 * delta, ChronoUnit.DAYS);
+                LocalDateTime fromDate = toDate.minus(30, ChronoUnit.DAYS);
+                List<ThumbsUp> resultList = session.createQuery("from ThumbsUp " +
+                        "where fromId=:userId and time > :date1 and time < :date2", ThumbsUp.class)
+                        .setParameter("userId", userId)
+                        .setParameter("date1", fromDate)
+                        .setParameter("date2", toDate)
+                        .getResultList();
+                resultList.forEach(thumbsUp -> thumbsUp.getComment().getBookPost().getBookId());
+                return resultList;
+            });
     }
 }

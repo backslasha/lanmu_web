@@ -2,7 +2,9 @@ package lanmu.service;
 
 import com.google.common.base.Strings;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,6 +22,7 @@ import lanmu.entity.db.Book;
 import lanmu.entity.db.BookPost;
 import lanmu.entity.db.User;
 import lanmu.factory.BookPostFactory;
+import lanmu.factory.CommentFactory;
 import lanmu.utils.Hib;
 
 @Path("/posts")
@@ -105,5 +108,43 @@ public class BookPostService extends BaseService {
         return ResponseModel.buildParameterError();
     }
 
+    @Path("/hot")
+    @GET
+    @Produces("application/json")
+    public ResponseModel<List<BookPostCard>> hot() {
+        List<BookPost> bookPosts = Hib.query(session ->
+                session.createQuery("from BookPost where id in(select postId from Comment group by postId order by count(postId))", BookPost.class)
+                        .setMaxResults(20)
+                        .getResultList());
+        if (bookPosts != null) {
+            List<BookPostCard> result = covert(bookPosts);
+            Collections.reverse(result);
+            return ResponseModel.buildOk(result);
+        }
+        return ResponseModel.buildNotFoundPostError();
+    }
+
+
+    @Path("/latest")
+    @GET
+    @Produces("application/json")
+    public ResponseModel<List<BookPostCard>> latest() {
+        List<BookPost> bookPosts = Hib.query(session ->
+                session.createQuery("from BookPost order by createDate desc ", BookPost.class)
+                        .setMaxResults(20)
+                        .getResultList());
+        if (bookPosts != null) {
+            return ResponseModel.buildOk(covert(bookPosts));
+        }
+        return ResponseModel.buildNotFoundPostError();
+    }
+
+    private List<BookPostCard> covert(List<BookPost> bookPosts) {
+        return bookPosts.stream()
+                .map(BookPostCard::new)
+                .peek(card ->
+                        card.setCommentCount(CommentFactory.queryPostCommentCount(card.getId())))
+                .collect(Collectors.toList());
+    }
 
 }

@@ -1,15 +1,14 @@
 package lanmu.factory;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
-import lanmu.entity.db.ThumbsUp;
-import lanmu.entity.db.User;
 import lanmu.utils.Hib;
 
 public class CommentFactory {
@@ -29,6 +28,20 @@ public class CommentFactory {
             }
             return comments;
         });
+    }
+
+    public static int queryPostCommentCount(long postId) {
+        AtomicReference<Long> aLong = new AtomicReference<>();
+        Hib.queryOnly(session -> {
+            Long count = session.createQuery("select count(*) from Comment where postId=:postId", Long.class)
+                    .setParameter("postId", postId)
+                    .uniqueResult();
+            aLong.set(count);
+        });
+        if (aLong.get() != null) {
+            return Math.toIntExact(aLong.get());
+        }
+        return 0;
     }
 
     public static List<Comment> queryUserReceivedComments(long userId) {
@@ -84,4 +97,33 @@ public class CommentFactory {
         );
     }
 
+    public static List<Comment> queryUserCommentsByMonth(long userId, int delta) {
+        return Hib.query(session -> {
+            LocalDateTime toDate = LocalDateTime.now().minus(30 * delta, ChronoUnit.DAYS);
+            LocalDateTime fromDate = toDate.minus(30, ChronoUnit.DAYS);
+            List<Comment> resultList = session.createQuery("from Comment " +
+                    "where fromId=:userId and time > :date1 and time < :date2", Comment.class)
+                    .setParameter("userId", userId)
+                    .setParameter("date1", fromDate)
+                    .setParameter("date2", toDate)
+                    .getResultList();
+            resultList.forEach(comment -> comment.getBookPost().getBook());
+            return resultList;
+        });
+    }
+
+    public static List<CommentReply> queryUserRepliesByMonth(long userId, int delta) {
+        return Hib.query(session -> {
+            LocalDateTime toDate = LocalDateTime.now().minus(30 * delta, ChronoUnit.DAYS);
+            LocalDateTime fromDate = toDate.minus(30, ChronoUnit.DAYS);
+            List<CommentReply> resultList = session.createQuery("from CommentReply " +
+                    "where fromId=:userId and time > :date1 and time < :date2", CommentReply.class)
+                    .setParameter("userId", userId)
+                    .setParameter("date1", fromDate)
+                    .setParameter("date2", toDate)
+                    .getResultList();
+            resultList.forEach(reply -> reply.getComment().getBookPost().getBookId());
+            return resultList;
+        });
+    }
 }
