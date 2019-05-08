@@ -11,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import lanmu.entity.api.base.PageModel;
 import lanmu.entity.api.base.ResponseModel;
 import lanmu.entity.api.comment.CreateCommentModel;
 import lanmu.entity.api.comment.CreateReplyModel;
@@ -72,18 +73,21 @@ public class CommentService extends BaseService {
     @GET
     @Path("{postId}/")
     @Produces("application/json")
-    public ResponseModel<List<CommentCard>> pullComments(@PathParam("postId") long postId,
-                                                         @QueryParam("order") int order
-    ) {
+    public ResponseModel<PageModel<CommentCard>> pullComments(@PathParam("postId") long postId,
+                                                              @QueryParam("order") int order,
+                                                              @QueryParam("page") int page) {
         BookPost bookPost = BookPostFactory.findById(postId);
         if (bookPost == null) {
             return ResponseModel.buildNotFoundPostError();
         }
-        List<CommentCard> cards = CommentFactory.queryPostComments(postId, getSelf().getId(), order);
+        List<CommentCard> cards
+                = CommentFactory.queryPostComments(postId, getSelf().getId(), order, page);
         if (cards == null) {
             return ResponseModel.buildNotFoundCommentError();
         } else {
-            return ResponseModel.buildOk(cards);
+            return ResponseModel.buildOk(new PageModel<>(
+                    cards, page, CommentFactory.queryPostCommentCount(postId),
+                    cards.size() < CommentFactory.ITEM_COUNT_PER_PAGE));
         }
     }
 

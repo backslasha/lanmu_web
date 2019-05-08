@@ -18,6 +18,8 @@ import static lanmu.entity.card.CommentCard.ORDER_COMMENT_THUMBS_UP_FIRST;
 
 public class CommentFactory {
 
+    public static final int ITEM_COUNT_PER_PAGE = 5;
+
     private static final String HQL_COMMENTS_TIME_ORDER =
             "select cm," +
                     "(select count (tp.commentId) from ThumbsUp tp where tp.commentId=cm.id) as cnt, " +
@@ -44,7 +46,7 @@ public class CommentFactory {
     /**
      * 返回评论列表
      */
-    public static List<CommentCard> queryPostComments(long postId, long userId, int order) {
+    public static List<CommentCard> queryPostComments(long postId, long userId, int order, int page) {
         return Hib.query(session -> {
             String hql;
             switch (order) {
@@ -64,6 +66,8 @@ public class CommentFactory {
             List<Object[]> objects = query
                     .setParameter("postId", postId)
                     .setParameter("fromId", userId)
+                    .setFirstResult(Math.max(page - 1, 0) * ITEM_COUNT_PER_PAGE)
+                    .setMaxResults(ITEM_COUNT_PER_PAGE)
                     .getResultList();
             return objects2Cards(objects);
         });
