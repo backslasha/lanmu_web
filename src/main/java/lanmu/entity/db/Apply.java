@@ -45,6 +45,17 @@ public class Apply {
     @Column(nullable = false)
     private int handle = 0;
 
+    public int getReceived() {
+        return received;
+    }
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
+
+    @Column(nullable = false)
+    private int received = 0;
+
     public long getId() {
         return id;
     }

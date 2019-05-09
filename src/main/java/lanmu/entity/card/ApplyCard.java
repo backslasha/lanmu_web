@@ -22,6 +22,8 @@ public class ApplyCard {
     private long toId;
     @Expose
     private int handle = 0;
+    @Expose
+    private int received = 0;
 
     public ApplyCard(Apply apply) {
         this.id = apply.getId();
@@ -31,8 +33,16 @@ public class ApplyCard {
         this.to = new UserCard(apply.getTo());
         this.toId = apply.getToId();
         this.handle = apply.getHandle();
+        this.received = apply.getReceived();
     }
 
+    public int getReceived() {
+        return received;
+    }
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
 
     public UserCard getFrom() {
         return from;

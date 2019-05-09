@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import lanmu.entity.api.base.ResponseModel;
 import lanmu.entity.api.message.CreateMsgModel;
 import lanmu.entity.api.message.PullMsgModel;
+import lanmu.entity.card.UnreadMessagesCard;
 import lanmu.entity.card.MessageCard;
 import lanmu.entity.db.Message;
 import lanmu.entity.db.User;
@@ -39,8 +40,6 @@ public class MessageService extends BaseService {
         }
         Message committed = Hib.query(session -> {
             Message message = new Message();
-//        message.setFromId(msgModel.getFromId());
-//        message.setToId(msgModel.getToId());
             message.setContent(msgModel.getContent());
             message.setFrom(from);
             message.setTo(to);
@@ -61,6 +60,7 @@ public class MessageService extends BaseService {
     @Path("record/")
     @Consumes("application/json")
     @Produces("application/json")
+    @Deprecated
     public ResponseModel<List<MessageCard>> pullMsgRecord(PullMsgModel model) {
         if (!PullMsgModel.check(model)) {
             return ResponseModel.buildParameterError();
@@ -69,7 +69,7 @@ public class MessageService extends BaseService {
             return ResponseModel.buildNotFoundUserError(null);
         }
         List<Message> committed = MessageFactory
-                .queryMsg(model.getFromId(), model.getToId(), model.getPullCount());
+                .pullMessages(model.getFromId(), model.getToId(), model.getPullCount());
         if (committed != null) {
             return ResponseModel.buildOk(
                     committed.stream()
@@ -94,17 +94,11 @@ public class MessageService extends BaseService {
                     "and " + "(toId=:userId or fromId=:userId )" +
                     "order by time desc";
 
-
-//    private static final String lastContractsHql
-//            = "from Message where id in " +
-//            "(select id from Message where time in " +
-//            "(select max(time) from Message where fromId=:userId or toId=:userId))" +
-//            "order by time desc";
-
     @POST
     @Path("conversations/")
     @Consumes("application/json")
     @Produces("application/json")
+    @Deprecated
     public ResponseModel<List<MessageCard>> pullConversations(long userId) {
         User self = getSelf();
         if (userId != self.getId()) {
@@ -130,6 +124,34 @@ public class MessageService extends BaseService {
         return ResponseModel.buildNotFoundMessageError();
     }
 
+    @POST
+    @Path("unread/")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public ResponseModel<List<UnreadMessagesCard>> pullUnreadMessages(long userId) {
+        List<Message> unreadMsg = Hib.query(session -> session.createQuery(
+                "from Message where toId=:userId and received=0", Message.class)
+                .setParameter("userId", userId)
+                .getResultList()
+        );
+
+        if (unreadMsg != null) {
+            MessageFactory.markMessagesReceived(userId);
+            List<UnreadMessagesCard> unreadMessagesCards = unreadMsg.stream()
+                    .collect(Collectors.groupingBy(Message::getFromId))
+                    .values()
+                    .stream()
+                    .filter(messages -> messages.size() != 0)
+                    .peek(messages -> messages.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime())))
+                    .map(messages -> new UnreadMessagesCard(messages.get(0).getFrom(), messages))
+                    .collect(Collectors.toList());
+            return ResponseModel.buildOk(unreadMessagesCards);
+        }
+
+        return ResponseModel.buildNotFoundMessageError();
+    }
+
+
     /**
      * Message 去重使用
      */
@@ -154,7 +176,7 @@ public class MessageService extends BaseService {
 
         @Override
         public int hashCode() {
-            return Objects.hash(fromId, toId) + Objects.hash(toId,fromId);
+            return Objects.hash(fromId, toId) + Objects.hash(toId, fromId);
         }
 
         Message getMessage() {

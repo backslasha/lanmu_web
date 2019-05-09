@@ -74,7 +74,7 @@ public class ThumbsUpFactory {
     }
 
 
-    public static int updateThumbsUpsReceived(long userId) {
+    public static int markThumbsUpsReceived(long userId) {
         return Hib.query(session ->
                 session.createQuery("update ThumbsUp set received=1 " +
                         "where " +
@@ -99,5 +99,16 @@ public class ThumbsUpFactory {
                 resultList.forEach(thumbsUp -> thumbsUp.getComment().getBookPost().getBookId());
                 return resultList;
             });
+    }
+
+    public static int countUnreadThumbsUpOf(long userId) {
+        Long count = Hib.query(session ->
+                session.createQuery("select count(*) from ThumbsUp " +
+                        "where (commentId in (from Comment where fromId=:userId) " +
+                        "and fromId!=:userId and received=0)", Long.class)
+                        .setParameter("userId", userId)
+                        .uniqueResult()
+        );
+        return Math.toIntExact(count);
     }
 }

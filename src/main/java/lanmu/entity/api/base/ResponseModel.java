@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lanmu.entity.api.notify.GlobalNotifyRspModel;
 import lanmu.entity.card.BookPostCard;
 import lanmu.entity.card.UserCard;
 import lanmu.entity.db.BookPost;
@@ -28,6 +29,9 @@ public class ResponseModel<M> implements Serializable {
     public static final int ERROR_NOT_FOUND_CONTRACT = 4045;
     // 没有好友申请
     public static final int ERROR_NOT_FOUND_APPLY = 4046;
+    // 没有查询到未读消息
+    public static final int ERROR_NOT_FOUND_GLOBAL_NOTIFY = 4047;
+
 
     // 创建书帖
     public static final int ERROR_CREATE_POST = 3001;
@@ -141,12 +145,16 @@ public class ResponseModel<M> implements Serializable {
         return new ResponseModel<M>(ERROR_NOT_FOUND_MESSAGE, "Not Found Messages.");
     }
 
-    public static <M>ResponseModel<M> buildNotFoundContactError() {
+    public static <M> ResponseModel<M> buildNotFoundContactError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_CONTRACT, "Not Found Contract");
     }
 
-    public static <M>ResponseModel<M> buildNotFoundApplyError() {
+    public static <M> ResponseModel<M> buildNotFoundApplyError() {
         return new ResponseModel<M>(ERROR_NOT_FOUND_APPLY, "Not Found Apply");
+    }
+
+    public static <M> ResponseModel<M> buildNotFoundGlobalNotifyError() {
+        return new ResponseModel<M>(ERROR_NOT_FOUND_GLOBAL_NOTIFY, "Not Found Notify Count");
     }
 
     public static <M> ResponseModel<M> buildAccountError() {

@@ -111,9 +111,9 @@ public class CommentService extends BaseService {
             return ResponseModel.buildNotFoundCommentError();
         }
 
-        int unread = CommentFactory.updateCommentsReceived(userId);
-        unread += CommentFactory.updateRepliesReceived(userId);
-        unread += ThumbsUpFactory.updateThumbsUpsReceived(userId);
+        int unread = CommentFactory.markCommentsReceived(userId);
+        unread += CommentFactory.markRepliesReceived(userId);
+        unread += ThumbsUpFactory.markThumbsUpsReceived(userId);
 
         List<NotifyCard> notifyCards = comments.stream()
                 .map(NotifyCard::new)
@@ -142,7 +142,7 @@ public class CommentService extends BaseService {
         }
         User from = UserFactory.findById(model.getFromId());
         User to = UserFactory.findById(model.getToId());
-        if (from == null || to == null) {
+        if (from == null) {
             return ResponseModel.buildNotFoundUserError(null);
         }
         Comment comment = CommentFactory.findById(model.getCommentId());

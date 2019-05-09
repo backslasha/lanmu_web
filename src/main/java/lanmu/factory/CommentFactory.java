@@ -133,11 +133,11 @@ public class CommentFactory {
         });
     }
 
-    public static int updateRepliesReceived(long userId) {
+    public static int markRepliesReceived(long userId) {
         return Hib.query(session ->
                 session.createQuery("update CommentReply set received=1 " +
                         "where " +
-                        "commentId in (from Comment where fromId = :userId)" +
+                        "(commentId in (from Comment where fromId = :userId) or toId=:userId)" +
                         " and" +
                         " fromId!= :userId and received=0")
                         .setParameter("userId", userId)
@@ -145,7 +145,7 @@ public class CommentFactory {
         );
     }
 
-    public static int updateCommentsReceived(long userId) {
+    public static int markCommentsReceived(long userId) {
         return Hib.query(session ->
                 session.createQuery("update Comment set received=1 " +
                         "where postId in (from BookPost where creatorId = :userId) " +
@@ -183,5 +183,27 @@ public class CommentFactory {
             resultList.forEach(reply -> reply.getComment().getBookPost().getBookId());
             return resultList;
         });
+    }
+
+
+    public static int countUnreadReplyOf(long userId) {
+        Long count = Hib.query(session ->
+                session.createQuery("select count(*) from CommentReply " +
+                        "where (commentId in (from Comment where fromId = :userId) or toId=:userId) and fromId!=:userId and received=0", Long.class)
+                        .setParameter("userId", userId)
+                        .uniqueResult()
+        );
+        return Math.toIntExact(count);
+    }
+
+    public static int countUnreadCommentOf(long userId) {
+        Long count = Hib.query(session ->
+                session.createQuery("select count(*) from Comment " +
+                        "where (postId in (from BookPost where creatorId = :userId) " +
+                        "and fromId!=:userId and received=0)", Long.class)
+                        .setParameter("userId", userId)
+                        .uniqueResult()
+        );
+        return Math.toIntExact(count);
     }
 }

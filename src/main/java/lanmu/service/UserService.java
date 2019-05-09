@@ -16,6 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import lanmu.entity.api.base.ResponseModel;
+import lanmu.entity.api.notify.GlobalNotifyRspModel;
 import lanmu.entity.card.ApplyCard;
 import lanmu.entity.card.DynamicCard;
 import lanmu.entity.card.UserCard;
@@ -29,6 +30,7 @@ import lanmu.entity.db.UserFollow;
 import lanmu.factory.ApplyFactory;
 import lanmu.factory.BookPostFactory;
 import lanmu.factory.CommentFactory;
+import lanmu.factory.MessageFactory;
 import lanmu.factory.ThumbsUpFactory;
 import lanmu.factory.UserFactory;
 import lanmu.utils.Hib;
@@ -119,7 +121,8 @@ public class UserService extends BaseService {
         if (user == null) {
             return ResponseModel.buildNotFoundUserError(null);
         }
-        List<Apply> applies = ApplyFactory.searchApplies(userId);
+        List<Apply> applies = ApplyFactory.pullApplies(userId);
+        ApplyFactory.markAppliesReceived(userId);
         if (applies != null) {
             Collections.reverse(applies);
             return ResponseModel.buildOk(applies.stream().map(ApplyCard::new)
@@ -229,5 +232,27 @@ public class UserService extends BaseService {
             return -1;
         return 0;
     };
+
+    @GET
+    @Path("/notify_count/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<GlobalNotifyRspModel> pullGlobalNotifyCount(@PathParam("userId") long userId) {
+        if (null == UserFactory.findById(userId)) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+        GlobalNotifyRspModel committed = Hib.query(session -> {
+            final int applyCount = ApplyFactory.countUnReceivedApplyOf(userId);
+            final int messageCount = MessageFactory.countUnreadMessageOf(userId);
+            final int commentCount =
+                    CommentFactory.countUnreadCommentOf(userId) + CommentFactory.countUnreadReplyOf(userId);
+            final int thumbsUpCount = ThumbsUpFactory.countUnreadThumbsUpOf(userId);
+            return new GlobalNotifyRspModel(applyCount, messageCount, commentCount, thumbsUpCount);
+        });
+
+        if (committed != null)
+            return ResponseModel.buildOk(committed);
+
+        return ResponseModel.buildNotFoundGlobalNotifyError();
+    }
 
 }
