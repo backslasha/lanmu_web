@@ -169,6 +169,27 @@ public class CommentService extends BaseService {
     }
 
     @GET
+    @Path("reply/{commentId}/")
+    @Produces("application/json")
+    public ResponseModel<PageModel<CommentReplyCard>> pullReplies(@PathParam("commentId") long commentId,
+                                                                  @QueryParam("page") int page) {
+        Comment comment = CommentFactory.findById(commentId);
+        if (comment == null) {
+            return ResponseModel.buildNotFoundCommentError();
+        }
+        List<CommentReplyCard> cards
+                = CommentFactory.queryRepliesByCommentId(commentId, page);
+        if (cards == null) {
+            return ResponseModel.buildNotFoundCommentError();
+        } else {
+            return ResponseModel.buildOk(new PageModel<>(
+                    cards, page, CommentFactory.queryReplyCountByCommentID(commentId),
+                    cards.size() < CommentFactory.ITEM_COUNT_PER_PAGE));
+        }
+    }
+
+
+    @GET
     @Path("thumbsup/")
     @Produces("application/json")
     public ResponseModel createThumbsUp(@QueryParam("commentId") long commentId,

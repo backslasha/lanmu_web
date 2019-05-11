@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import lanmu.entity.card.CommentCard;
+import lanmu.entity.card.CommentReplyCard;
 import lanmu.entity.db.Comment;
 import lanmu.entity.db.CommentReply;
 import lanmu.utils.Hib;
@@ -31,6 +32,7 @@ public class CommentFactory {
     private static final String HQL_COMMENTS_TIME_ORDER_DESC =
             HQL_COMMENTS_TIME_ORDER + "desc ";
 
+    @SuppressWarnings("JpaQlInspection")
     private static final String HQL_COMMENTS_TB_ORDER =
             "select cm," +
                     "(select COUNT(tp.commentId) from ThumbsUp tp where tp.commentId=cm.id) as cnt, " +
@@ -69,12 +71,12 @@ public class CommentFactory {
                     .setFirstResult(Math.max(page - 1, 0) * ITEM_COUNT_PER_PAGE)
                     .setMaxResults(ITEM_COUNT_PER_PAGE)
                     .getResultList();
-            return objects2Cards(objects);
+            return objects2CommentCards(objects);
         });
     }
 
 
-    private static List<CommentCard> objects2Cards(List<Object[]> objects) {
+    private static List<CommentCard> objects2CommentCards(List<Object[]> objects) {
         return objects.stream()
                 .map(object -> {
                     Comment comment = (Comment) object[0];
@@ -206,4 +208,30 @@ public class CommentFactory {
         );
         return Math.toIntExact(count);
     }
+
+    public static List<CommentReplyCard> queryRepliesByCommentId(long commentId, int page) {
+        return Hib.query(session -> {
+            String hql = "from CommentReply where commentId=:commentId";
+            Query<CommentReply> query = session.createQuery(hql, CommentReply.class);
+            List<CommentReply> objects = query
+                    .setParameter("commentId", commentId)
+                    .setFirstResult(Math.max(page - 1, 0) * ITEM_COUNT_PER_PAGE)
+                    .setMaxResults(ITEM_COUNT_PER_PAGE)
+                    .getResultList();
+            return objects.stream().map(CommentReplyCard::new).collect(Collectors.toList());
+        });
+    }
+
+    public static int queryReplyCountByCommentID(long commentId) {
+        AtomicReference<Long> aLong = new AtomicReference<>();
+        Hib.queryOnly(session -> {
+            Long count = session.createQuery("select count(*) from CommentReply where commentId=:commentId", Long.class)
+                    .setParameter("commentId", commentId)
+                    .uniqueResult();
+            aLong.set(count);
+        });
+        if (aLong.get() != null) {
+            return Math.toIntExact(aLong.get());
+        }
+        return 0;    }
 }
